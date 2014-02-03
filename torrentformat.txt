@@ -1,0 +1,67 @@
+Multi-file Torrent
+©À©¤announce
+©À©¤announce-list
+©À©¤comment
+©À©¤comment.utf-8
+©À©¤creation date
+©À©¤encoding
+©À©¤info
+©¦ ©À©¤files
+©¦ ©¦ ©À©¤length
+©¦ ©¦ ©À©¤path
+©¦ ©¦ ©¸©¤path.utf-8
+©¦ ©À©¤name
+©¦ ©À©¤name.utf-8
+©¦ ©À©¤piece length
+©¦ ©À©¤pieces
+©¦ ©À©¤publisher
+©¦ ©À©¤publisher-url
+©¦ ©À©¤publisher-url.utf-8
+©¦ ©¸©¤publisher.utf-8
+©¸©¤nodes
+Single-File Torrent
+©À©¤announce
+©À©¤announce-list
+©À©¤comment
+©À©¤comment.utf-8
+©À©¤creation date
+©À©¤encoding
+©À©¤info
+©¦ ©À©¤length
+©¦ ©À©¤name
+©¦ ©À©¤name.utf-8
+©¦ ©À©¤piece length
+©¦ ©À©¤pieces
+©¦ ©À©¤publisher
+©¦ ©À©¤publisher-url
+©¦ ©À©¤publisher-url.utf-8
+©¦ ©¸©¤publisher.utf-8
+©¸©¤nodes
+¡°[HUDBT].The Grapes of Wrath 1940 720p HDTV x264 DD2.0 ¨CDD.torrent¡±
+©À©¤announce->http://www.kmgtp.org/announce.php?passkey=dd02f8a70bfa6ad203d645528938a813
+©À©¤announce-list
+©À©¤comment 
+©À©¤comment.utf-8
+©À©¤created by->uTorrent/2210
+©À©¤creation date->1311085371(s)
+©À©¤encoding->UTF-8
+©À©¤info
+©¦ ©À©¤files
+©¦ ©¦ ©À©¤length->4575172071(BYTE)
+©¦ ©¦ ©À©¤path->The Grapes of Wrath 1940 720p HDTV x264 DD2.0 -DD.mkv
+©¦ ©¦ ©¸©¤path.utf-8
+©¦ ©¦ ©À©¤length->41438014(BYTE)
+©¦ ©¦ ©À©¤path->sample.mkv
+©¦ ©¦ ©¸©¤path.utf-8
+©¦ ©¦ ©À©¤length->11073(BYTE)
+©¦ ©¦ ©À©¤path->The Grapes of Wrath 1940 720p HDTV x264 DD2.0 -DD.nfo
+©¦ ©¦ ©¸©¤path.utf-8
+©¦ ©À©¤name->The Grapes of Wrath 1940 720p HDTV x264 DD2.0 -DD
+©¦ ©À©¤name.utf-8
+©¦ ©À©¤piece length->4194304(BYTE)
+©¦ ©À©¤pieces-> BLA BLA BLA ¡­(SHA1)
+©¦ ©À©¤publisher
+©¦ ©À©¤publisher-url
+©¦ ©À©¤publisher-url.utf-8
+©¦ ©¸©¤publisher.utf-8
+©¸©¤nodes
