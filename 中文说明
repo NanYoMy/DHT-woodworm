@@ -10,4 +10,6 @@
     SELF_LAN_IP=""，防止自己发DHT的udp给自己，自己的ip可以同过“www.whereismyip.com”来获得！！！！
 5.	运行downloadTorrent.py，利用现有的磁力链接从zoink.it上获取BT种子文件，并分析资源名。
 
+有问题请email"dingwangbin@126.com"!!!
+
 
