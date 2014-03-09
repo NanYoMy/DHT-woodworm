@@ -4,8 +4,10 @@
 操作：
 1.	安装python，安装mysql
 2.	安装python与mysql的connector
-3.	运行mysql.py创建数据库（注意设置数据库的密码与用户名）
-4.	运行wooooodworm.py从dht网络上分析获取磁力链接（注意设置"threadNumb"，"workingTime"和数据库用户名密码）
+3.	运行mysql.py创建数据库（注意设置数据库的密码与用户名！！！！）
+4.	运行wooooodworm.py从dht网络上分析获取磁力链接,注意设置“wooooodworm.py”中的"threadNumb"表示虚拟的DHT网络node的个数，
+    "workingTime"表示这个程序运行时间长度！！！！，还有要在“htable.py”设置数据库的用户名密码！！！！，还要设置“defines.py”里面的
+    SELF_LAN_IP=""，防止自己发DHT的udp给自己，自己的ip可以同过“www.whereismyip.com”来获得！！！！
 5.	运行downloadTorrent.py，利用现有的磁力链接从zoink.it上获取BT种子文件，并分析资源名。
 
 
