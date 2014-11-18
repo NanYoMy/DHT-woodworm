@@ -4,15 +4,18 @@ from .bencode import bdecode
 class Parser(object):
     
     def __init__(self,filePath):
+        print "star parse"
+        #print filePath
         self.path = filePath
+        print filePath
         metainfo_file = open(str(self.path), 'rb')
+        print "star bdecode"
         self.metainfo = bdecode(metainfo_file.read())
         #print self.metainfo
         metainfo_file.close()
+        
     def getName(self):
-
         info = self.metainfo['info']
-
         if 'name.utf-8' in info:
             filename=info['name.utf-8']
         else:

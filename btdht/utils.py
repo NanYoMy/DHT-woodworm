@@ -69,8 +69,8 @@ def pack_port(port):
     return chr(port >> 8) + chr(port % 256)
 
 def unpack_host(host):
-    fp=open("host.txt",'w+b')
-    fp.write(host+"\n")
+    #fp=open("host.txt",'w+b')
+    #fp.write(host+"\n")
     if len(host) == 4:
         return socket.inet_ntop(socket.AF_INET, host)
     elif len(host) == 16: 

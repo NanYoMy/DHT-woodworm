@@ -5,7 +5,7 @@ import socket
 import threading
 import time
 import logging
-import re
+import re,cookielib
 import urllib2
 
 from .defines import *
@@ -16,14 +16,18 @@ from .node import Node
 from .utils import decode_nodes, encode_nodes, random_node_id, unpack_host, unpack_hostport
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("std")
+fileLogger=logging.getLogger("btdht")
 
 class DHTRequestHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         logger.debug("Got packet from: %s:%d" % (self.client_address))
-        if self.server.dht.node.LANip == self.client_address[0]:
-            #print "self request"
+        if self.server.dht.WANip == self.client_address[0]:
+            #获取公网端口
+            logger.debug("the server ip and port is : %s:%d"%(self.client_address))
+            IP=""
+            IP,self.server.dht.WANport ==self.client_address
             return
 
         req = self.request[0].strip()
@@ -58,7 +62,7 @@ class DHTRequestHandler(SocketServer.BaseRequestHandler):
         node = self.server.dht.rt.node_by_id(node_id)
         if not node:
             logger.debug("Cannot find appropriate node during simple search: %r" % (node_id.encode("hex")))
-            # Trying to search via transaction id
+            #Trying to search via transaction id
             #get the node who sent the request, that correspondents to the response
             node = self.server.dht.rt.node_by_trans(trans_id)
             if not node:
@@ -79,11 +83,6 @@ class DHTRequestHandler(SocketServer.BaseRequestHandler):
                 return
         else:
             logger.debug("Cannot find transaction %r in node: %r" % (trans_id.encode("hex"), node))
-            '''
-            for trans in node.trans:
-                logger.debug(trans.encode("hex"))
-            return
-            '''
             return
 
         if "ip" in args:
@@ -105,6 +104,7 @@ class DHTRequestHandler(SocketServer.BaseRequestHandler):
                 logger.debug("We got new nodes from %r" % (node))
                 for new_node_id, new_node_host, new_node_port in new_nodes:
                     logger.debug("Adding %r %s:%d as new node" % (new_node_id.encode("hex"), new_node_host, new_node_port))
+                    self.server.dht.rt.update_node(new_node_id, Node(new_node_host, new_node_port, new_node_id))
                     self.server.dht.rt.update_node(new_node_id, Node(new_node_host, new_node_port, new_node_id))
 
             # cleanup boot node
@@ -156,7 +156,7 @@ class DHTRequestHandler(SocketServer.BaseRequestHandler):
         node_id = args["id"]
 
         client_host, client_port = self.client_address
-        logger.debug(self.server.dht.name+" Query message %s from %s:%d, id:%r" % (query_type, client_host, client_port, node_id.encode("hex")))
+        logger.debug(" Query message %s from %s:%d, id:%r" % (query_type, client_host, client_port, node_id.encode("hex")))
         
         # Do we know already know about this node?
         node = self.server.dht.rt.node_by_id(node_id)
@@ -170,48 +170,37 @@ class DHTRequestHandler(SocketServer.BaseRequestHandler):
         node.update_access()
 
         if query_type == "ping":
-            logger.debug("handle query ping")
-            node.pong(socket=self.server.socket, trans_id = trans_id, sender_id=self.server.dht.node._id, lock=self.server.send_lock)
+
             logger.debug(self.server.dht.name+" handle query ping from %s"% node.host)
+            node.pong(socket=self.server.socket, trans_id = trans_id, sender_id=self.server.dht.node._id, lock=self.server.send_lock)
+
         elif query_type == "find_node":
             logger.debug("handle query find_node")
             logger.debug(self.server.dht.name+" handle query find_node %s"% node.host)
             target = args["target"]
-            #获取最近的8个node
-
-            #tmpNodes=dict(self.server.dht.rt.get_close_nodes(target, 7))
-            #tmpNodes[self.server.dht.node._id]=self.server.dht.node
-            #tmpNodes=dict(self.server.dht.rt.get_close_nodes(target, 7).items())
-            #tmpNodes[self.server.dht.node._id]=self.server.dht.node
-            tmpNodes=[(self.server.dht.node._id,self.server.dht.node)]
+            #返回自己的公网ip与地址
             #aha return myself it's trick
-            '''
-            tmpNodes.append(self.server.dht.rt.sample(1))
-            tmpNodes.append(self.server.dht.node)
-            found_nodes = encode_nodes(tmpNodes)
-            '''
+            tmpNodes=[(self.server.dht.node._id,Node(self.server.dht.WANip,self.server.dht.WANport,self.server.dht.id))]
             found_nodes = encode_nodes(tmpNodes)
             node.found_node(found_nodes, socket=self.server.socket, trans_id = trans_id, sender_id=self.server.dht.node._id, lock=self.server.send_lock)
         elif query_type == "get_peers":
-            logger.debug("handle query get_peers")
+
             node.pong(socket=self.server.socket, trans_id = trans_id, sender_id=self.server.dht.node._id, lock=self.server.send_lock)
 
             #todo get hash_info
             self.server.dht.ht.add_hash(args["info_hash"])
             #translate the ASCII into hex
             logger.debug(self.server.dht.name+" handle query get_peers %s from host:%s"%(args["info_hash"].encode('hex'),node.host))
-
+            #fileLogger.debug(self.server.dht.name+" handle query get_peers %s from host:%s"%(args["info_hash"].encode('hex'),node.host))
             return
         elif query_type == "announce_peer":
 
-            logger.debug("handle query announce_peer")
             node.pong(socket=self.server.socket, trans_id = trans_id, sender_id=self.server.dht.node._id, lock=self.server.send_lock)
-
             #todo get hash_info
             self.server.dht.ht.add_hash(args["info_hash"])
             #translate the ASCII into hex
             logger.debug(self.server.dht.name+" handle query announce_peer %s from host:%s"%(args["info_hash"].encode('hex'),node.host))
-
+            #fileLogger.debug(self.server.dht.name+" handle query announce_peer %s from host:%s"%(args["info_hash"].encode('hex'),node.host))
             return
         else:
             logger.error(self.server.dht.name+" Unknown query type: %s" % (query_type))
@@ -230,21 +219,36 @@ class DHTServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
         #the mutex for multi_threading
         self.send_lock = threading.Lock()
 
-class DHT(threading.Thread):
-
-
+class DHT(object):
     def __init__(self, host, port):
 
+        self.WANip=""
+        self.WANport=0
+        self.name="%s:%d"%(host,port)
+        print self.name
+        '''
+        httpCookier=urllib2.HTTPCookieProcessor(cookielib.CookieJar())
+        webOpener=urllib2.build_opener(httpCookier)
+        request=urllib2.Request("http://whereismyip.com/")
+        html=webOpener.open(request).read()
+        publicIP=re.search("[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}",html)
+        #publicIP=re.search('\d+\.\d+\.\d+\.\d+',urllib2.urlopen('http://www.whereismyip.com').read())
+        if publicIP:
+            self.WANip=publicIP.group(0)
+            logging.debug(self.WANip)
+        else:
+            logging.error("could not find the public ip")
+        '''
+        self.WANip=SELF_LAN_IP
+        #threading.Thread.__init__(self)
 
-        threading.Thread.__init__(self)
         #constructor a node by its port,id,ip
-        id=random_node_id()
-        print id.encode('hex')
-        self.node = Node(unicode(host), port, id)
+        self.id=random_node_id()
+        print self.id.encode('hex')
+        self.node = Node(unicode(host), port, self.id)
         self.rt = RoutingTable()
         self.ht = HashTable()
-        #(self.node.host, self.node.port):host_address
-        #handler_cls:DHTRequestHandler
+
         self.server = DHTServer((self.node.host, self.node.port), DHTRequestHandler)
         self.server.dht = self
         self.sample_count = SAMPLE_COUNT
@@ -256,7 +260,7 @@ class DHT(threading.Thread):
         self.random_find_peers = RANDOM_FIND_PEERS
         self.running = False
         logger.debug("DHT Server listening on %s:%d" % (host, port))
-        #create a thread, it will help us the deal the requests with multi-threading.
+        #create a thread, it will help us to deal the requests with multi-threading.
         #we didn't start it here!!!!
         self.server_thread = threading.Thread(target=self.server.serve_forever)
         #把他设置为后台进程。
@@ -266,16 +270,17 @@ class DHT(threading.Thread):
         self.iterative_thread = threading.Thread(target=self.iterative)
         self.iterative_thread.daemon = True
 
-    def run(self):
+    def start(self):
 
         self.server_thread.start()
         logger.debug("DHT server thread started")
-        self.bootstrap('router.bittorrent.com',6881)
-        #self.bootstrap('router.bitcomet.net',554)
-        CurrentMagnet = "4CDE5B50A8930315B479931F6872A3DB59575366"
-        self.ht.add_hash(CurrentMagnet.decode("hex"))
+        #68.142.107.67
+        #self.bootstrap('router.utorrent.com',6881)
+        #self.bootstrap('dht.transmissionbt.com',6881)
+        #self.bootstrap('router.bittorrent.com',8911)
 
     def bootstrap(self, boot_host, boot_port):
+
         logger.debug("Starting DHT bootstrap on %s:%d" % (boot_host, boot_port))
         boot_node = Node(boot_host, boot_port, "boot")
         #the boot node is also a node in our router table
@@ -285,13 +290,13 @@ class DHT(threading.Thread):
 
             if len(boot_node.trans) > self.max_bootstrap_errors:
                 logger.error("Too many attempts to bootstrap, seems boot node %s:%d is down. Givin up" % (boot_host, boot_port))
-                return False
-
+                #return False
             #去find自己，这样的作用是可以得到与自己邻近的节点
             #self.server.socket是UDP的socket
             boot_node.find_node(self.node._id, socket=self.server.socket, sender_id=self.node._id)
-            time.sleep(self.iteration_timeout)
+            time.sleep(1)
 
+        print "current DHT node number %d"%self.rt.count()
         self.running = True
         self.iterative_thread.start()
         return True
@@ -339,7 +344,7 @@ class DHT(threading.Thread):
                     nodes = self.rt.get_close_nodes(hash_id, self.sample_count)
                 for node_id, node in nodes:
                     node.get_peers(hash_id, socket=self.server.socket, sender_id=self.node._id)
-                   # print "get peers"
+                    #print "get peers"
 
             time.sleep(self.iteration_timeout)
 

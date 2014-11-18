@@ -8,6 +8,7 @@ import random
 '''
 one hash_info conrresponds  many peers
 '''
+fileLogger=logging.getLogger("btdht")
 class HashTable(object):
 
     def __init__(self):
@@ -28,12 +29,13 @@ class HashTable(object):
             if hash not in self.hashes:
                 self.hashes[hash] = []
                 sql="insert into hash_info(hash,info) values('%s','%s')"%(hash.encode('hex'),"")
-                logging.debug('inser a item into database')
+
                 try:
                     self.cur.execute(sql)
                     self.conn.commit()
+                    fileLogger.debug('find new hash: %s'%hash.encode('hex').upper())
                 except MySQLdb.Error,e:
-                    logging.debug('mysql error')
+                    logging.debug('insert duplicate hash into mysql')
 
 
     def remove_hash(self, hash):
