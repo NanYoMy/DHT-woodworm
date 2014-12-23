@@ -11,3 +11,7 @@ HOW TO RUN THE PROGRAM
 6.run the "downloadTorrent.py" to get the torrnet file from the "zoink.it"(set the "passwd" ,"user"and "port" on your own condition)
 7.check the "./torrents" file, it contains the torrents that you get from network.
 8.check the database table "hash_info",it maintain the magnet info that you get from network 
+
+Hey guys, we may find it's difficult to run all these steps. now, i had made a new DHT node in python and put it in
+https://github.com/NanYoMy/DHT-simDHT
+you only need to install python 2.7.X and bencode to run this program! 
